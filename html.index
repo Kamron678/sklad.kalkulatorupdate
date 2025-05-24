@@ -1,0 +1,176 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sklad Kalkulyatori (Yangilangan)</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  .container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+  }
+  th, td {
+    padding: 12px 8px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+  th {
+    background: #007bff;
+    color: white;
+  }
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 6px 8px;
+    box-sizing: border-box;
+  }
+  button {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button:hover {
+    background: #0056b3;
+  }
+  .total {
+    font-size: 1.3rem;
+    text-align: right;
+    margin-top: 10px;
+    font-weight: 700;
+  }
+  .remove-btn {
+    background: #dc3545;
+  }
+  .remove-btn:hover {
+    background: #a71d2a;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Sklad Kalkulyatori (Yangilangan)</h1>
+
+  <table id="productsTable">
+    <thead>
+      <tr>
+        <th>Mahsulot nomi</th>
+        <th>Qutilar soni</th>
+        <th>Har qutida elementlar soni</th>
+        <th>Umumiy elementlar soni</th>
+        <th>1 dona narx (so'm)</th>
+        <th>O'chirish</th>
+      </tr>
+    </thead>
+    <tbody id="productsBody">
+      <!-- Mahsulotlar shu yerga qo‘shiladi -->
+    </tbody>
+  </table>
+
+  <button id="addProductBtn">Mahsulot qo‘shish</button>
+
+  <div class="total" id="totalSum">Jami summa: 0 so'm</div>
+  <div class="total" id="totalItems">Jami elementlar soni: 0</div>
+</div>
+
+<script>
+  const productsBody = document.getElementById('productsBody');
+  const totalSum = document.getElementById('totalSum');
+  const totalItems = document.getElementById('totalItems');
+  const addProductBtn = document.getElementById('addProductBtn');
+
+  let products = [];
+
+  function createProductRow(id) {
+    const tr = document.createElement('tr');
+    tr.dataset.id = id;
+
+    tr.innerHTML = `
+      <td><input type="text" placeholder="Mahsulot nomi" class="name-input" /></td>
+      <td><input type="number" min="0" value="0" class="boxes-input" /></td>
+      <td><input type="number" min="0" value="0" class="items-per-box-input" /></td>
+      <td class="total-items-cell">0</td>
+      <td><input type="number" min="0" value="0" class="price-per-item-input" /></td>
+      <td><button class="remove-btn">O'chirish</button></td>
+    `;
+
+    const boxesInput = tr.querySelector('.boxes-input');
+    const itemsPerBoxInput = tr.querySelector('.items-per-box-input');
+    const totalItemsCell = tr.querySelector('.total-items-cell');
+    const pricePerItemInput = tr.querySelector('.price-per-item-input');
+
+    function updateRow() {
+      const boxes = parseInt(boxesInput.value) || 0;
+      const itemsPerBox = parseInt(itemsPerBoxInput.value) || 0;
+      const totalElems = boxes * itemsPerBox;
+      totalItemsCell.textContent = totalElems.toLocaleString('uz-UZ');
+
+      updateTotals();
+    }
+
+    boxesInput.addEventListener('input', updateRow);
+    itemsPerBoxInput.addEventListener('input', updateRow);
+    pricePerItemInput.addEventListener('input', updateTotals);
+
+    const removeBtn = tr.querySelector('.remove-btn');
+    removeBtn.addEventListener('click', () => {
+      products = products.filter(p => p.id !== id);
+      tr.remove();
+      updateTotals();
+    });
+
+    return tr;
+  }
+
+  function updateTotals() {
+    let totalPrice = 0;
+    let totalElements = 0;
+
+    productsBody.querySelectorAll('tr').forEach(tr => {
+      const boxes = parseInt(tr.querySelector('.boxes-input').value) || 0;
+      const itemsPerBox = parseInt(tr.querySelector('.items-per-box-input').value) || 0;
+      const pricePerItem = parseFloat(tr.querySelector('.price-per-item-input').value) || 0;
+
+      const totalItems = boxes * itemsPerBox;
+      totalElements += totalItems;
+      totalPrice += totalItems * pricePerItem;
+    });
+
+    totalSum.textContent = `Jami summa: ${totalPrice.toLocaleString('uz-UZ')} so'm`;
+    totalItems.textContent = `Jami elementlar soni: ${totalElements.toLocaleString('uz-UZ')}`;
+  }
+
+  addProductBtn.addEventListener('click', () => {
+    const id = Date.now();
+    products.push({id});
+    const row = createProductRow(id);
+    productsBody.appendChild(row);
+  });
+
+  // Dastlab 1 ta mahsulot qo‘shish
+  addProductBtn.click();
+</script>
+
+</body>
+</html>
